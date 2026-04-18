@@ -1,0 +1,51 @@
+{
+  "name": "@cryptachain/sdk",
+  "version": "0.1.0",
+  "description": "Official TypeScript SDK for the CryptaChain API — blockchain data, pricing, FX, screening",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "cryptachain",
+    "blockchain",
+    "crypto",
+    "pricing",
+    "fx",
+    "screening",
+    "web3",
+    "sdk",
+    "api"
+  ],
+  "author": "CryptaCount Luxembourg S.à r.l.",
+  "license": "MIT",
+  "homepage": "https://docs.cryptachain.com/sdk/typescript",
+  "repository": "https://github.com/cryptachain/cryptachain-sdk-typescript",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.0.0",
+    "eslint": "^8.0.0"
+  }
+}
