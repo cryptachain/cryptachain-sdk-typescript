@@ -38,7 +38,7 @@ export class ScreeningResource {
    * ```
    */
   async screenAddress(params: ScreenAddressParams): Promise<ScreeningResult> {
-    return this.http.get<ScreeningResult>('/api/v1/screen/address', {
+    return this.http.get<ScreeningResult>('/screen/address', {
       address: params.address,
       chain_id: params.chainId,
     });
@@ -62,6 +62,6 @@ export class ScreeningResource {
    * ```
    */
   async screenBulk(request: BulkScreeningRequest): Promise<BulkScreeningResponse> {
-    return this.http.post<BulkScreeningResponse>('/api/v1/screen/bulk', request);
+    return this.http.post<BulkScreeningResponse>('/screen/bulk', request);
   }
 }

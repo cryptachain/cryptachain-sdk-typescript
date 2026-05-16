@@ -55,10 +55,7 @@ export class HttpClient {
   }
 
   private buildUrl(path: string, params?: Record<string, string | number | boolean | undefined>): string {
-    // Paths starting with '/api/' bypass the default version prefix (e.g. screening: /api/v1/screen/...)
-    const base = path.startsWith('/api/')
-      ? `${this.config.baseUrl}${path}`
-      : `${this.config.baseUrl}/${this.config.version}${path}`;
+    const base = `${this.config.baseUrl}/${this.config.version}${path}`;
     if (!params) return base;
 
     const searchParams = new URLSearchParams();
@@ -93,7 +90,7 @@ export class HttpClient {
         headers: {
           'X-API-Key': this.config.apiKey,
           'Accept': 'application/json',
-          'User-Agent': '@cryptachain/sdk-typescript/0.1.0',
+          'User-Agent': '@cryptachain/sdk-typescript/0.1.1',
           ...init.headers,
         },
       });
