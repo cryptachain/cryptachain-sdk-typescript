@@ -45,7 +45,7 @@ export class WalletResource {
    * ```
    */
   async getHistory(address: Address, params: WalletHistoryParams): Promise<TransferHistoryResponse> {
-    return this.http.get<TransferHistoryResponse>(`/wallets/${address}/transfers`, {
+    return this.http.get<TransferHistoryResponse>(`/wallets/${encodeURIComponent(address)}/transfers`, {
       chain_id: params.chainId,
       cursor: params.cursor,
       limit: params.limit,
@@ -104,7 +104,7 @@ export class WalletResource {
    * ```
    */
   async getBalances(address: Address, params: WalletBalancesParams): Promise<TokenBalance[]> {
-    return this.http.get<TokenBalance[]>(`/wallets/${address}/balances`, {
+    return this.http.get<TokenBalance[]>(`/wallets/${encodeURIComponent(address)}/balances`, {
       chain_id: params.chainId,
     });
   }
@@ -123,7 +123,7 @@ export class WalletResource {
    * ```
    */
   async getNativeBalance(address: Address, params: WalletBalancesParams): Promise<NativeBalance> {
-    return this.http.get<NativeBalance>(`/wallets/${address}/native-balance`, {
+    return this.http.get<NativeBalance>(`/wallets/${encodeURIComponent(address)}/native-balance`, {
       chain_id: params.chainId,
     });
   }
@@ -144,7 +144,7 @@ export class WalletResource {
    * ```
    */
   async getErc20Transfers(address: Address, params: Erc20TransfersParams): Promise<TransferHistoryResponse> {
-    return this.http.get<TransferHistoryResponse>(`/wallets/${address}/erc20-transfers`, {
+    return this.http.get<TransferHistoryResponse>(`/wallets/${encodeURIComponent(address)}/erc20-transfers`, {
       chain_id: params.chainId,
       cursor: params.cursor,
       limit: params.limit,
@@ -170,7 +170,7 @@ export class WalletResource {
    * ```
    */
   async getNftTransfers(address: Address, params: NftTransfersParams): Promise<TransferHistoryResponse> {
-    return this.http.get<TransferHistoryResponse>(`/wallets/${address}/nft-transfers`, {
+    return this.http.get<TransferHistoryResponse>(`/wallets/${encodeURIComponent(address)}/nft-transfers`, {
       chain_id: params.chainId,
       cursor: params.cursor,
       limit: params.limit,
@@ -197,7 +197,7 @@ export class WalletResource {
    * ```
    */
   async getNativeTransfers(address: Address, params: NativeTransfersParams): Promise<TransferHistoryResponse> {
-    return this.http.get<TransferHistoryResponse>(`/wallets/${address}/native-transfers`, {
+    return this.http.get<TransferHistoryResponse>(`/wallets/${encodeURIComponent(address)}/native-transfers`, {
       chain_id: params.chainId,
       cursor: params.cursor,
       limit: params.limit,
@@ -223,7 +223,7 @@ export class WalletResource {
    * ```
    */
   async getSummary(address: Address, params: WalletBalancesParams): Promise<WalletSummary> {
-    return this.http.get<WalletSummary>(`/wallets/${address}/summary`, {
+    return this.http.get<WalletSummary>(`/wallets/${encodeURIComponent(address)}/summary`, {
       chain_id: params.chainId,
     });
   }

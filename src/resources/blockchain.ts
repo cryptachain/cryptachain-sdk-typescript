@@ -36,7 +36,7 @@ export class BlockchainResource {
    * ```
    */
   async getBlock(params: GetBlockParams): Promise<Block> {
-    return this.http.get<Block>(`/blocks/${params.blockNumber}`, {
+    return this.http.get<Block>(`/blocks/${encodeURIComponent(String(params.blockNumber))}`, {
       chain_id: params.chainId,
     });
   }
@@ -57,7 +57,7 @@ export class BlockchainResource {
    * ```
    */
   async getTransaction(params: GetTransactionParams): Promise<Transaction> {
-    return this.http.get<Transaction>(`/transactions/${params.hash}`, {
+    return this.http.get<Transaction>(`/transactions/${encodeURIComponent(params.hash)}`, {
       chain_id: params.chainId,
     });
   }
@@ -78,7 +78,7 @@ export class BlockchainResource {
    * ```
    */
   async getReceipt(params: GetTransactionParams): Promise<TransactionReceipt> {
-    return this.http.get<TransactionReceipt>(`/transactions/${params.hash}/receipt`, {
+    return this.http.get<TransactionReceipt>(`/transactions/${encodeURIComponent(params.hash)}/receipt`, {
       chain_id: params.chainId,
     });
   }
@@ -101,7 +101,7 @@ export class BlockchainResource {
    * ```
    */
   async getTraces(params: GetTracesParams): Promise<Trace[]> {
-    return this.http.get<Trace[]>(`/transactions/${params.hash}/traces`, {
+    return this.http.get<Trace[]>(`/transactions/${encodeURIComponent(params.hash)}/traces`, {
       chain_id: params.chainId,
     });
   }
