@@ -1,14 +1,28 @@
 /** FX rate source type. */
 export type FxSource = 'FRANKFURTER_ECB' | 'HARDCODED_PEG' | 'USD_BASE';
 
-/** Price source type. */
+/**
+ * Price source type.
+ *
+ * `ZERO_VALUE_IFRS_13_B37` is a legacy value that older API versions returned when no price source
+ * was available for the asset at the requested timestamp. It is not an IFRS 13 fair-value assessment
+ * and says nothing about whether the asset has an observable market.
+ *
+ * It is no longer returned: a lookup with no source now yields `NO_PRICE_SOURCE` with `fairValueLevel`
+ * unset. The member is kept so that responses from older API versions still type-check.
+ */
 export type PriceSource =
   | 'CRYPTAPRICE_VWAP'
   | 'MANUAL_OVERRIDE'
   | 'STABLECOIN_PEGGED'
   | 'ZERO_VALUE_IFRS_13_B37';
 
-/** IFRS 13 fair value hierarchy level. */
+/**
+ * Fair-value hierarchy level, as published by the price source that priced the asset.
+ * Present only on rows carrying a real price: a row with no price source has no level, so
+ * the field is null rather than `LEVEL_3`. "We found no source" is not a determination
+ * that the asset's inputs are unobservable.
+ */
 export type FairValueLevel = 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3';
 
 /** Price response from the API. */
