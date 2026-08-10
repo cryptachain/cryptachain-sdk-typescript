@@ -5,10 +5,12 @@ import {
   AuthenticationError,
   RateLimitError,
   ChainNotFoundError,
+  ChainNotServedError,
   QuotaExceededError,
 } from './errors';
 import { withRetry } from './retry';
 import type { ApiErrorResponse } from './types/common';
+import { isChainNotServedResponse } from './types/common';
 import { WalletResource } from './resources/wallets';
 import { TokenResource } from './resources/tokens';
 import { BlockchainResource } from './resources/blockchain';
@@ -141,6 +143,15 @@ export class HttpClient {
         const retryAfter = parseInt(response.headers.get('Retry-After') ?? '60', 10);
         throw new RateLimitError(retryAfter, body);
       }
+      case 501:
+        // Branch on the BODY marker, not on the status. 501 is shared: `/approvals` and
+        // `/defi-positions` are reserved routes that also answer 501, with no `code` field. Mapping
+        // every 501 to ChainNotServedError would give those a fabricated `chain`/`chainId`, which
+        // is the same class of defect this whole contract exists to remove.
+        if (isChainNotServedResponse(body)) {
+          throw new ChainNotServedError(body);
+        }
+        throw new CryptaChainError(message, 501, body);
       default:
         throw new CryptaChainError(message, response.status, body);
     }

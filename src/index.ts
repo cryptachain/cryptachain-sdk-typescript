@@ -8,8 +8,13 @@ export {
   RateLimitError,
   AuthenticationError,
   ChainNotFoundError,
+  ChainNotServedError,
   QuotaExceededError,
 } from './errors';
+
+// CHAIN_NOT_SERVED marker + narrowing helper. Exported as values (not types) because callers
+// need them at runtime to distinguish a refusal from an empty result.
+export { CHAIN_NOT_SERVED, isChainNotServedResponse } from './types/common';
 
 // Pagination helpers
 export { paginate, collectAll } from './pagination';
@@ -33,6 +38,8 @@ export type {
   DateString,
   DateTimeString,
   ApiErrorResponse,
+  ChainNotServedCode,
+  ChainNotServedResponse,
   SortDirection,
   ListParams,
   // Wallet

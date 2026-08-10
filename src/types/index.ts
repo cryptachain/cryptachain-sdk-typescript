@@ -6,9 +6,14 @@ export type {
   DateString,
   DateTimeString,
   ApiErrorResponse,
+  ChainNotServedCode,
+  ChainNotServedResponse,
   SortDirection,
   ListParams,
 } from './common';
+
+// Values, not types — callers need the marker and the guard at runtime.
+export { CHAIN_NOT_SERVED, isChainNotServedResponse } from './common';
 
 export type {
   Transfer,

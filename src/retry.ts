@@ -22,6 +22,14 @@ export interface RetryOptions {
  * - On 429 (RateLimitError), waits for the Retry-After period before retrying.
  * - On other transient errors, uses exponential backoff with jitter.
  *
+ * ⚠ KNOWN GAP — NOT FIXED HERE, DELIBERATELY. The "other transient errors" branch is reached by
+ * *every* error that is not one of the three named above, so this retries permanent failures too:
+ * 404 (ChainNotFoundError), 403, and now 501 (ChainNotServedError). The Java SDK's RetryHandler
+ * keeps an explicit NON_RETRYABLE_CODES set; this one has no equivalent, so the two SDKs disagree
+ * about what is transient. Fixing it means deciding the retryable set by status code rather than by
+ * error class, which changes behaviour for 404 as well — out of scope for this change and flagged
+ * rather than done quietly.
+ *
  * @param fn - The async function to execute.
  * @param options - Retry configuration.
  * @returns The result of the function.
