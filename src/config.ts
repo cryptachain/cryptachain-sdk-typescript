@@ -27,11 +27,18 @@ export interface ResolvedConfig {
   onRateLimit?: (retryAfter: number) => void;
 }
 
+/** Remove all trailing occurrences of one character (linear time, no regex backtracking). */
+function trimTrailing(value: string, ch: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === ch) end--;
+  return value.slice(0, end);
+}
+
 /** Apply defaults to user-supplied config. */
 export function resolveConfig(config: CryptaChainConfig): ResolvedConfig {
   return {
     apiKey: config.apiKey,
-    baseUrl: (config.baseUrl ?? 'https://api.cryptachain.com').replace(/\/+$/, ''),
+    baseUrl: trimTrailing(config.baseUrl ?? 'https://api.cryptachain.com', '/'),
     version: config.version ?? 'v1',
     timeout: config.timeout ?? 30_000,
     retries: config.retries ?? 3,

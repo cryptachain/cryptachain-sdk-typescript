@@ -36,16 +36,15 @@
   ],
   "author": "CryptaCount, Inc.",
   "license": "MIT",
-  "homepage": "https://docs.cryptachain.com/sdk/typescript",
+  "homepage": "https://github.com/cryptachain/cryptachain-sdk-typescript#readme",
   "repository": "https://github.com/cryptachain/cryptachain-sdk-typescript",
   "engines": {
     "node": ">=18"
   },
-  "dependencies": {},
   "devDependencies": {
+    "eslint": "^8.0.0",
     "tsup": "^8.0.0",
     "typescript": "^5.4.0",
-    "vitest": "^1.0.0",
-    "eslint": "^8.0.0"
+    "vitest": "^4.1.12"
   }
 }

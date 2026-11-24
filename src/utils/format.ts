@@ -32,7 +32,7 @@ export function fromSmallestUnit(value: string, decimals: number): string {
   const fractionalPart = abs.slice(abs.length - decimals);
 
   // Remove trailing zeros from fractional part, keep at least one
-  const trimmed = fractionalPart.replace(/0+$/, '') || '0';
+  const trimmed = trimTrailingZeros(fractionalPart) || '0';
 
   const result = `${integerPart}.${trimmed}`;
   return isNegative ? `-${result}` : result;
@@ -117,4 +117,11 @@ export function formatWithSeparators(value: string, separator = ','): string {
   const [intPart, fracPart] = value.split('.');
   const formatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, separator);
   return fracPart !== undefined ? `${formatted}.${fracPart}` : formatted;
+}
+
+/** Remove trailing '0' characters (linear time, no regex backtracking). */
+function trimTrailingZeros(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === '0') end--;
+  return value.slice(0, end);
 }
