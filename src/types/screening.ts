@@ -30,7 +30,8 @@ export interface ScreeningResult {
 export interface BulkScreeningRequest {
   addresses: Array<{
     address: Address;
-    chainId: number;
+    chain?: string;
+    chainId?: number;
   }>;
 }
 
@@ -47,5 +48,7 @@ export interface BulkScreeningResponse {
 /** Parameters for screening a single address. */
 export interface ScreenAddressParams {
   address: Address;
-  chainId: number;
+  /** Chain slug (`ethereum`). */
+  chain?: string;
+  chainId?: number;
 }

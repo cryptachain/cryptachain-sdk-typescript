@@ -1,6 +1,3 @@
-/** FX rate source type. */
-export type FxSource = 'FRANKFURTER_ECB' | 'HARDCODED_PEG' | 'USD_BASE';
-
 /**
  * Price source type.
  *
@@ -25,51 +22,53 @@ export type PriceSource =
  */
 export type FairValueLevel = 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3';
 
-/** Price response from the API. */
+/** Where the FX rate came from: the ECB, a fixed peg, or (never sent for USD responses today) null. */
+export type FxRateSourceCode = 'ECB' | 'PEG' | string;
+
+/** Close finality of a daily close. UNKNOWN is never FINAL. */
+export type CloseFinal = 'FINAL' | 'PROVISIONAL' | 'UNKNOWN';
+
+/**
+ * Price response of `GET /v1/prices/{symbol}/fair-value` (recorded from the live route).
+ * Decimal values arrive as JSON numbers with up to 18 decimals; read them with a decimal library if you need every digit.
+ */
 export interface PriceResponse {
-  symbol: string;
-  date: string;
+  /** Price in the requested currency. */
+  price: number;
+  priceUsd: number;
   currency: string;
-  price: string;
-  priceUsd: string;
-  fxRate: string;
-  fxSource: FxSource;
-  fxDate: string;
-  source: PriceSource;
-  qualityScore: number;
-  fairValueLevel: FairValueLevel;
+  /** USD per 1 unit of `currency`; null when currency is USD. */
+  fxRate: number | null;
+  fxSource: FxRateSourceCode | null;
+  fxDate: string | null;
+  date: string;
   sourceCount: number;
-  methodologyVersion: string;
-  stablecoinPegged: boolean;
-  manualOverride: boolean;
-  computedAt: string;
+  qualityScore: number;
+  /** IFRS 13 level of the price source: 1, 2 or 3; null when unset. */
+  fairValueLevel: number | null;
+  totalVolumeUsd: number | null;
+  spreadPct: number | null;
+  methodologyVersion: number;
+  revision: number;
+  priceCloseZone: string;
+  /** DAILY for a daily close, DAILY_FALLBACK when the minute price was not available. */
+  precision: string;
+  closeGrade: string | null;
+  closeFinal: CloseFinal;
 }
 
-/** Single request within a batch. */
-export interface PriceBatchRequestItem {
-  symbol?: string;
-  chainId?: number;
-  contractAddress?: string;
+/** `GET /v1/prices/batch`: a map from the requested symbol to its price. Symbols without a price are absent. */
+export type PriceBatchResponse = Record<string, PriceResponse>;
+
+/** Batch request: up to 500 symbols for one date. */
+export interface PriceBatchRequest {
+  symbols: string[];
   date: string;
   currency?: string;
 }
 
-/** Batch price request body. */
-export interface PriceBatchRequest {
-  requests: PriceBatchRequestItem[];
-}
-
-/** Batch price response. */
-export interface PriceBatchResponse {
-  results: PriceResponse[];
-  errors: Array<{ index: number; error: string }>;
-}
-
-/** Price-at-timestamp response (1-minute precision). */
-export interface PriceAtResponse extends PriceResponse {
-  timestamp: string;
-  blockNumber?: number;
-}
+/** Price-at-timestamp response (same fields as a daily price; `precision` says which was used). */
+export type PriceAtResponse = PriceResponse;
 
 /** Parameters for price-by-symbol lookup. */
 export interface PriceBySymbolParams {
@@ -78,9 +77,13 @@ export interface PriceBySymbolParams {
   currency?: string;
 }
 
-/** Parameters for price-by-contract lookup. */
+/**
+ * Parameters for price-by-contract lookup. Give the chain as its slug (`ethereum`, `bsc`, ...);
+ * `chainId` is accepted for the chains the SDK knows and converted to the slug.
+ */
 export interface PriceByContractParams {
-  chainId: number;
+  chain?: string;
+  chainId?: number;
   address: string;
   date: string;
   currency?: string;

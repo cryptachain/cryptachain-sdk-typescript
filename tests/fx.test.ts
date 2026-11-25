@@ -1,92 +1,70 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { CryptaChain } from '../src';
-import { createMockFetch, mockFxRate, mockCurrencies } from './mocks/responses';
+import { createMockFetch } from './mocks/responses';
 
+const fixture = (name: string) => JSON.parse(readFileSync(new URL(`./fixtures/${name}.json`, import.meta.url), 'utf8'));
 const originalFetch = globalThis.fetch;
 
+// Fixtures are bodies recorded from the live /v1/fx routes.
 describe('FxResource', () => {
   afterEach(() => {
     globalThis.fetch = originalFetch;
   });
 
-  it('should fetch single FX rate', async () => {
-    globalThis.fetch = createMockFetch(mockFxRate);
-    const client = new CryptaChain({ apiKey: 'key' });
-
-    const rate = await client.fx.getRate({
-      from: 'EUR',
-      to: 'USD',
-      date: '2026-01-15',
-    });
-
-    expect(rate.currency).toBe('EUR');
-    expect(rate.rate).toBe('1.0842');
-    expect(rate.source).toBe('FRANKFURTER_ECB');
-  });
-
-  it('should pass FX rate query params correctly', async () => {
-    const fetchSpy = vi.fn(createMockFetch(mockFxRate));
+  it('getRate calls GET /v1/fx/rate and returns the recorded shape', async () => {
+    const fetchSpy = vi.fn(createMockFetch(fixture('fx_rate')));
     globalThis.fetch = fetchSpy;
     const client = new CryptaChain({ apiKey: 'key' });
 
-    await client.fx.getRate({ from: 'EUR', to: 'USD', date: '2026-01-15' });
+    const rate = await client.fx.getRate({ from: 'EUR', to: 'USD', date: '2026-11-10' });
 
-    const url = fetchSpy.mock.calls[0][0] as string;
-    expect(url).toContain('from=EUR');
-    expect(url).toContain('to=USD');
-    expect(url).toContain('date=2026-01-15');
+    const u = new URL(fetchSpy.mock.calls[0][0] as string);
+    expect(u.pathname).toBe('/v1/fx/rate');
+    expect(u.searchParams.get('from')).toBe('EUR');
+    expect(u.searchParams.get('to')).toBe('USD');
+    expect(u.searchParams.get('date')).toBe('2026-11-10');
+    expect(rate.fromCurrency).toBe('EUR');
+    expect(rate.toCurrency).toBe('USD');
+    expect(rate.rate).toBe(1.1);
   });
 
-  it('should fetch FX history', async () => {
-    const historyResponse = {
-      currency: 'EUR',
-      from: '2026-01-01',
-      to: '2026-01-31',
-      rates: [mockFxRate],
-    };
-    globalThis.fetch = createMockFetch(historyResponse);
+  it('getHistory returns the recorded history shape', async () => {
+    const fetchSpy = vi.fn(createMockFetch(fixture('fx_history')));
+    globalThis.fetch = fetchSpy;
     const client = new CryptaChain({ apiKey: 'key' });
 
-    const history = await client.fx.getHistory({
-      currency: 'EUR',
-      from: '2026-01-01',
-      to: '2026-01-31',
-    });
+    const history = await client.fx.getHistory({ currency: 'EUR', from: '2026-11-01', to: '2026-11-10' });
 
-    expect(history.rates).toHaveLength(1);
-    expect(history.currency).toBe('EUR');
+    expect(new URL(fetchSpy.mock.calls[0][0] as string).pathname).toBe('/v1/fx/history');
+    expect(history.baseCurrency).toBe('USD');
+    expect(history.rates[0]).toEqual({ date: '2026-11-01', value: 1.01, carriedForward: false, source: 'ECB' });
   });
 
-  it('should fetch monthly average', async () => {
-    const avgResponse = {
-      currency: 'EUR',
-      year: 2026,
-      month: 1,
-      averageRate: '1.0815',
-      daysInMonth: 31,
-      businessDays: 22,
-      source: 'FRANKFURTER_ECB',
-      computedAt: '2026-02-01T00:00:00Z',
-    };
-    globalThis.fetch = createMockFetch(avgResponse);
+  it('getMonthlyAverage sends month=YYYY-MM', async () => {
+    const fetchSpy = vi.fn(createMockFetch(fixture('fx_monthly_average')));
+    globalThis.fetch = fetchSpy;
     const client = new CryptaChain({ apiKey: 'key' });
 
-    const avg = await client.fx.getMonthlyAverage({
-      currency: 'EUR',
-      year: 2026,
-      month: 1,
-    });
+    const avg = await client.fx.getMonthlyAverage({ currency: 'EUR', month: '2026-11' });
 
-    expect(avg.averageRate).toBe('1.0815');
-    expect(avg.businessDays).toBe(22);
+    const u = new URL(fetchSpy.mock.calls[0][0] as string);
+    expect(u.pathname).toBe('/v1/fx/monthly-average');
+    expect(u.searchParams.get('month')).toBe('2026-11');
+    expect(u.searchParams.has('year')).toBe(false);
+    expect(avg.avgRate).toBe(1.055);
+    expect(avg.daysInAverage).toBe(10);
+    expect(avg.isLive).toBe(true);
   });
 
-  it('should list currencies', async () => {
-    globalThis.fetch = createMockFetch(mockCurrencies);
+  it('listCurrencies returns the recorded list', async () => {
+    globalThis.fetch = createMockFetch(fixture('fx_currencies'));
     const client = new CryptaChain({ apiKey: 'key' });
 
     const result = await client.fx.listCurrencies();
-    expect(result.count).toBe(3);
-    expect(result.currencies[0].code).toBe('USD');
+
+    expect(result.total).toBe(35);
+    expect(result.currencies).toContain('EUR');
+    expect(result.pegged).toContain('AED');
   });
 });

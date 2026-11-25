@@ -1,11 +1,11 @@
 import type { HttpClient } from '../client';
+import { resolveChainSlug } from '../utils/chain';
 import type { Address } from '../types/common';
 import type {
   Transfer,
   TransferHistoryResponse,
   TokenBalance,
   NativeBalance,
-  WalletSummary,
   WalletHistoryParams,
   WalletBalancesParams,
   Erc20TransfersParams,
@@ -46,14 +46,11 @@ export class WalletResource {
    */
   async getHistory(address: Address, params: WalletHistoryParams): Promise<TransferHistoryResponse> {
     return this.http.get<TransferHistoryResponse>(`/wallets/${encodeURIComponent(address)}/transfers`, {
-      chain_id: params.chainId,
+      chain: resolveChainSlug(params.chain, params.chainId),
       cursor: params.cursor,
       limit: params.limit,
-      sort: params.sort,
       from_block: params.fromBlock,
       to_block: params.toBlock,
-      from_date: params.fromDate,
-      to_date: params.toDate,
     });
   }
 
@@ -105,7 +102,7 @@ export class WalletResource {
    */
   async getBalances(address: Address, params: WalletBalancesParams): Promise<TokenBalance[]> {
     return this.http.get<TokenBalance[]>(`/wallets/${encodeURIComponent(address)}/balances`, {
-      chain_id: params.chainId,
+      chain: resolveChainSlug(params.chain, params.chainId),
     });
   }
 
@@ -124,7 +121,7 @@ export class WalletResource {
    */
   async getNativeBalance(address: Address, params: WalletBalancesParams): Promise<NativeBalance> {
     return this.http.get<NativeBalance>(`/wallets/${encodeURIComponent(address)}/native-balance`, {
-      chain_id: params.chainId,
+      chain: resolveChainSlug(params.chain, params.chainId),
     });
   }
 
@@ -145,15 +142,11 @@ export class WalletResource {
    */
   async getErc20Transfers(address: Address, params: Erc20TransfersParams): Promise<TransferHistoryResponse> {
     return this.http.get<TransferHistoryResponse>(`/wallets/${encodeURIComponent(address)}/erc20-transfers`, {
-      chain_id: params.chainId,
+      chain: resolveChainSlug(params.chain, params.chainId),
       cursor: params.cursor,
       limit: params.limit,
-      sort: params.sort,
-      token_address: params.tokenAddress,
       from_block: params.fromBlock,
       to_block: params.toBlock,
-      from_date: params.fromDate,
-      to_date: params.toDate,
     });
   }
 
@@ -171,16 +164,11 @@ export class WalletResource {
    */
   async getNftTransfers(address: Address, params: NftTransfersParams): Promise<TransferHistoryResponse> {
     return this.http.get<TransferHistoryResponse>(`/wallets/${encodeURIComponent(address)}/nft-transfers`, {
-      chain_id: params.chainId,
+      chain: resolveChainSlug(params.chain, params.chainId),
       cursor: params.cursor,
       limit: params.limit,
-      sort: params.sort,
-      token_address: params.tokenAddress,
-      token_id: params.tokenId,
       from_block: params.fromBlock,
       to_block: params.toBlock,
-      from_date: params.fromDate,
-      to_date: params.toDate,
     });
   }
 
@@ -198,33 +186,11 @@ export class WalletResource {
    */
   async getNativeTransfers(address: Address, params: NativeTransfersParams): Promise<TransferHistoryResponse> {
     return this.http.get<TransferHistoryResponse>(`/wallets/${encodeURIComponent(address)}/native-transfers`, {
-      chain_id: params.chainId,
+      chain: resolveChainSlug(params.chain, params.chainId),
       cursor: params.cursor,
       limit: params.limit,
-      sort: params.sort,
       from_block: params.fromBlock,
       to_block: params.toBlock,
-      from_date: params.fromDate,
-      to_date: params.toDate,
-    });
-  }
-
-  /**
-   * Get a summary overview for a wallet address on a specific chain.
-   *
-   * @param address - Wallet address
-   * @param params - Query parameters including chainId (required)
-   * @returns Wallet summary with transaction counts and balance overview
-   *
-   * @example
-   * ```ts
-   * const summary = await client.wallets.getSummary('0x...', { chainId: 1 });
-   * console.log(`Total txs: ${summary.totalTransactions}`);
-   * ```
-   */
-  async getSummary(address: Address, params: WalletBalancesParams): Promise<WalletSummary> {
-    return this.http.get<WalletSummary>(`/wallets/${encodeURIComponent(address)}/summary`, {
-      chain_id: params.chainId,
     });
   }
 }

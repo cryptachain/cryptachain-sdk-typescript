@@ -8,7 +8,6 @@ import {
   mockTransferHistoryPage2,
   mockTokenBalance,
   mockNativeBalance,
-  mockWalletSummary,
 } from './mocks/responses';
 
 const ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045';
@@ -37,15 +36,14 @@ describe('WalletResource', () => {
     await client.wallets.getHistory(ADDRESS, {
       chainId: 1,
       limit: 25,
-      sort: 'desc',
       fromBlock: 100,
       toBlock: 200,
     });
 
     const url = fetchSpy.mock.calls[0][0] as string;
-    expect(url).toContain('chain_id=1');
+    expect(url).toContain('chain=ethereum');
+    expect(url).not.toContain('chain_id');
     expect(url).toContain('limit=25');
-    expect(url).toContain('sort=desc');
     expect(url).toContain('from_block=100');
     expect(url).toContain('to_block=200');
   });
@@ -83,14 +81,5 @@ describe('WalletResource', () => {
     const balance = await client.wallets.getNativeBalance(ADDRESS, { chainId: 1 });
     expect(balance.symbol).toBe('ETH');
     expect(balance.balance).toBe('5000000000000000000');
-  });
-
-  it('should fetch wallet summary', async () => {
-    globalThis.fetch = createMockFetch(mockWalletSummary);
-    const client = new CryptaChain({ apiKey: 'key' });
-
-    const summary = await client.wallets.getSummary(ADDRESS, { chainId: 1 });
-    expect(summary.totalTransactions).toBe(1500);
-    expect(summary.tokenCount).toBe(25);
   });
 });

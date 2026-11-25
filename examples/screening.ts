@@ -35,8 +35,8 @@ async function main() {
     ],
   });
 
-  console.log(`\nBulk screening: ${bulk.results.length} results, ${bulk.errors.length} errors`);
-  for (const r of bulk.results) {
+  console.log(`\nBulk screening: ${bulk.length} results`);
+  for (const r of bulk) {
     console.log(`  ${r.address}: ${r.riskLevel} (score: ${r.riskScore})`);
   }
 }

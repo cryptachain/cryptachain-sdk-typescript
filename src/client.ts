@@ -92,7 +92,7 @@ export class HttpClient {
         headers: {
           'X-API-Key': this.config.apiKey,
           'Accept': 'application/json',
-          'User-Agent': '@cryptachain/sdk-typescript/0.1.1',
+          'User-Agent': '@cryptachain/sdk-typescript/0.1.2',
           ...init.headers,
         },
       });

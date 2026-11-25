@@ -1,5 +1,4 @@
 import type { HttpClient } from '../client';
-import type { Chain } from '../types/common';
 import type {
   SystemStatus,
   ChainStatusResponse,
@@ -29,7 +28,7 @@ export class HealthResource {
    * ```
    */
   async getSystemStatus(): Promise<SystemStatus> {
-    return this.http.get<SystemStatus>('/status/services');
+    return this.http.get<SystemStatus>('/status');
   }
 
   /**
@@ -48,21 +47,6 @@ export class HealthResource {
     return this.http.get<ChainStatusResponse>('/status/chains');
   }
 
-  /**
-   * List all supported blockchain networks.
-   *
-   * @returns Array of supported chains with metadata
-   *
-   * @example
-   * ```ts
-   * const chains = await client.health.listChains();
-   * const evm = chains.filter(c => c.isEvm);
-   * console.log(`${evm.length} EVM chains supported`);
-   * ```
-   */
-  async listChains(): Promise<Chain[]> {
-    return this.http.get<Chain[]>('/chains');
-  }
 
   /**
    * Get the pricing methodology document.

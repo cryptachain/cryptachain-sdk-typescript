@@ -15,15 +15,15 @@ export class TokenResource {
    * Get metadata for a token by its symbol.
    *
    * @param symbol - Token symbol (e.g. 'ETH', 'USDC')
-   * @returns Token metadata including name, decimals, and contract info
+   * @returns Token record (id, symbol, name, category, previous symbols, flags, CoinGecko id)
    *
    * @example
    * ```ts
    * const token = await client.tokens.getMetadata('USDC');
-   * console.log(`${token.name} — ${token.decimals} decimals`);
+   * console.log(`${token.name} (${token.category})`);
    * ```
    */
   async getMetadata(symbol: string): Promise<TokenMetadata> {
-    return this.http.get<TokenMetadata>(`/tokens/${encodeURIComponent(symbol)}`);
+    return this.http.get<TokenMetadata>(`/prices/tokens/${encodeURIComponent(symbol)}`);
   }
 }

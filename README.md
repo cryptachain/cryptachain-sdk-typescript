@@ -42,13 +42,13 @@ console.log(`BTC: ${price.price} EUR`);
 // Get wallet balances
 const balances = await client.wallets.getBalances(
   '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
-  { chainId: 1 },
+  { chain: 'ethereum' },
 );
 
 // Screen an address
 const screen = await client.screening.screenAddress({
   address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
-  chainId: 1,
+  chain: 'ethereum',
 });
 console.log(`Risk: ${screen.riskLevel}`);
 ```
@@ -79,18 +79,14 @@ const price = await client.prices.bySymbol({ symbol: 'ETH', date: '2026-01-15', 
 
 // By contract address
 const price = await client.prices.byContract({
-  chainId: 1,
+  chain: 'ethereum',   // slug; `chainId: 1` also works for the chains the SDK knows
   address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
   date: '2026-01-15',
 });
 
-// Batch (up to 500)
-const batch = await client.prices.batch({
-  requests: [
-    { symbol: 'BTC', date: '2026-01-15' },
-    { symbol: 'ETH', date: '2026-01-15' },
-  ],
-});
+// Batch: up to 500 symbols for one date (GET /v1/prices/batch); result is a map symbol -> price
+const batch = await client.prices.batch({ symbols: ['BTC', 'ETH'], date: '2026-01-15', currency: 'EUR' });
+console.log(batch.BTC.price);
 
 // Point-in-time (1-minute precision)
 const price = await client.prices.at({ symbol: 'ETH', timestamp: '2026-01-15T14:30:00Z' });
@@ -106,50 +102,48 @@ const rate = await client.fx.getRate({ from: 'EUR', to: 'USD', date: '2026-01-15
 const history = await client.fx.getHistory({ currency: 'EUR', from: '2026-01-01', to: '2026-01-31' });
 
 // IAS 21 monthly average
-const avg = await client.fx.getMonthlyAverage({ currency: 'EUR', year: 2026, month: 1 });
+const avg = await client.fx.getMonthlyAverage({ currency: 'EUR', month: '2026-01' });
 
-// List all 36 supported currencies
-const { currencies } = await client.fx.listCurrencies();
+// Supported currency codes (plus which are ECB-sourced and which are pegged)
+const { currencies, pegged } = await client.fx.listCurrencies();
 ```
 
 ### Wallets
 
 ```typescript
 // Transfer history (single page)
-const page = await client.wallets.getHistory('0x...', { chainId: 1, limit: 50, sort: 'desc' });
+const page = await client.wallets.getHistory('0x...', { chain: 'ethereum', limit: 50 });
 
 // Auto-paginate all transfers (async generator)
-for await (const transfer of client.wallets.getAllTransfers('0x...', { chainId: 1 })) {
+for await (const transfer of client.wallets.getAllTransfers('0x...', { chain: 'ethereum' })) {
   console.log(transfer.hash);
 }
 
 // Token balances
-const balances = await client.wallets.getBalances('0x...', { chainId: 1 });
+const balances = await client.wallets.getBalances('0x...', { chain: 'ethereum' });
 
 // Native balance
-const native = await client.wallets.getNativeBalance('0x...', { chainId: 1 });
+const native = await client.wallets.getNativeBalance('0x...', { chain: 'ethereum' });
 
 // ERC-20 / NFT / native transfers
-const erc20 = await client.wallets.getErc20Transfers('0x...', { chainId: 1 });
-const nfts = await client.wallets.getNftTransfers('0x...', { chainId: 1 });
-const native = await client.wallets.getNativeTransfers('0x...', { chainId: 1 });
+const erc20 = await client.wallets.getErc20Transfers('0x...', { chain: 'ethereum' });
+const nfts = await client.wallets.getNftTransfers('0x...', { chain: 'ethereum' });
+const native = await client.wallets.getNativeTransfers('0x...', { chain: 'ethereum' });
 
-// Wallet summary
-const summary = await client.wallets.getSummary('0x...', { chainId: 1 });
 ```
 
 ### Screening
 
 ```typescript
 // Single address
-const result = await client.screening.screenAddress({ address: '0x...', chainId: 1 });
+const result = await client.screening.screenAddress({ address: '0x...', chain: 'ethereum' });
 console.log(`Risk: ${result.riskLevel}, Sanctioned: ${result.isSanctioned}`);
 
 // Bulk screening
 const bulk = await client.screening.screenBulk({
   addresses: [
-    { address: '0xabc...', chainId: 1 },
-    { address: '0xdef...', chainId: 137 },
+    { address: '0xabc...', chain: 'ethereum' },
+    { address: '0xdef...', chain: 'polygon' },
   ],
 });
 ```
@@ -157,18 +151,18 @@ const bulk = await client.screening.screenBulk({
 ### Blockchain
 
 ```typescript
-const block = await client.blockchain.getBlock({ chainId: 1, blockNumber: 19000000 });
-const tx = await client.blockchain.getTransaction({ chainId: 1, hash: '0x...' });
-const receipt = await client.blockchain.getReceipt({ chainId: 1, hash: '0x...' });
-const traces = await client.blockchain.getTraces({ chainId: 1, hash: '0x...' });
-const logs = await client.blockchain.getLogs({ chainId: 1, fromBlock: 19000000, toBlock: 19000100 });
+const block = await client.blockchain.getBlock({ chain: 'ethereum', blockNumber: 19000000 });
+const tx = await client.blockchain.getTransaction({ chain: 'ethereum', hash: '0x...' });
+const receipt = await client.blockchain.getReceipt({ chain: 'ethereum', hash: '0x...' });
+const traces = await client.blockchain.getTraces({ chain: 'ethereum', hash: '0x...' });
+const logs = await client.blockchain.getLogs({ chain: 'ethereum', fromBlock: 19000000, toBlock: 19000100 });
 ```
 
 ### Tokens
 
 ```typescript
 const token = await client.tokens.getMetadata('USDC');
-console.log(`${token.name}: ${token.decimals} decimals`);
+console.log(`${token.name}: ${token.category}`);
 ```
 
 ### Health & Status
@@ -176,7 +170,6 @@ console.log(`${token.name}: ${token.decimals} decimals`);
 ```typescript
 const status = await client.health.getSystemStatus();
 const chains = await client.health.getChainStatus();
-const allChains = await client.health.listChains();
 const methodology = await client.health.getMethodology();
 ```
 
@@ -188,20 +181,20 @@ The SDK provides three approaches for paginated endpoints:
 // 1. Manual pagination
 let cursor: string | undefined;
 do {
-  const page = await client.wallets.getHistory('0x...', { chainId: 1, cursor });
+  const page = await client.wallets.getHistory('0x...', { chain: 'ethereum', cursor });
   process.stdout.write(`Page with ${page.transfers.length} items\n`);
   cursor = page.pagination.hasMore ? page.pagination.cursor : undefined;
 } while (cursor);
 
 // 2. Built-in async generator (recommended for large datasets)
-for await (const tx of client.wallets.getAllTransfers('0x...', { chainId: 1 })) {
+for await (const tx of client.wallets.getAllTransfers('0x...', { chain: 'ethereum' })) {
   // Processes one transfer at a time, auto-fetches next pages
 }
 
 // 3. Collect all into array (convenience, loads into memory)
 import { collectAll } from '@cryptachain/sdk';
 const all = await collectAll((cursor) =>
-  client.wallets.getHistory('0x...', { chainId: 1, cursor })
+  client.wallets.getHistory('0x...', { chain: 'ethereum', cursor })
     .then(res => ({ items: res.transfers, pagination: res.pagination }))
 );
 ```

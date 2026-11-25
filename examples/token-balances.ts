@@ -25,15 +25,6 @@ async function main() {
       console.log(`    USD value: $${token.valueUsd}`);
     }
   }
-
-  // Get wallet summary
-  const summary = await client.wallets.getSummary(address, { chainId: 1 });
-  console.log(`\nWallet summary:`);
-  console.log(`  Total transactions: ${summary.totalTransactions}`);
-  console.log(`  Token types held: ${summary.tokenCount}`);
-  console.log(`  NFTs held: ${summary.nftCount}`);
-  console.log(`  First tx: ${summary.firstTransactionAt}`);
-  console.log(`  Last tx: ${summary.lastTransactionAt}`);
 }
 
 main().catch(console.error);

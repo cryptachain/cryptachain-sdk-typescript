@@ -70,6 +70,20 @@ export function slugToChainId(slug: string): number | undefined {
  * isEvmChain(137); // true
  * ```
  */
+/**
+ * The chain slug the API expects (`ethereum`, `bsc`, ...). A `chain` slug is used as given; a numeric `chainId` is converted
+ * for the chains this SDK knows. Throws when neither is usable, instead of sending a request the API would refuse.
+ */
+export function resolveChainSlug(chain?: string, chainId?: number): string {
+  if (chain && chain.trim()) return chain.trim().toLowerCase();
+  if (chainId !== undefined) {
+    const slug = CHAIN_MAP[chainId];
+    if (slug) return slug;
+    throw new Error(`Unknown chainId ${chainId}: pass the chain slug as \`chain\` (for example 'ethereum')`);
+  }
+  throw new Error('Pass `chain` (slug, for example \'ethereum\') or `chainId`');
+}
+
 export function isEvmChain(chainId: number): boolean {
   // All chains in our built-in map are EVM
   // Non-EVM chains (TRON, Solana, BTC, Cosmos) use different ID schemes

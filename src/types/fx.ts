@@ -1,49 +1,51 @@
-/** FX rate source type. */
-export type FxRateSource = 'FRANKFURTER_ECB' | 'HARDCODED_PEG' | 'GAP_FILL_CARRY_FORWARD';
+/** Source codes of an FX rate on the old routes (FRANKFURTER_ECB: an ECB rate; HARDCODED_PEG: a fixed peg). */
+export type FxRateSource = 'FRANKFURTER_ECB' | 'HARDCODED_PEG' | 'USD_BASE' | string;
 
-/** Single FX rate entry. */
+/** `GET /v1/fx/rate`: one rate, `from` -> `to` on `date` (recorded from the live route). */
 export interface FxRate {
-  currency: string;
+  fromCurrency: string;
+  toCurrency: string;
   date: string;
-  rate: string;
+  rate: number;
   source: FxRateSource;
-  isBusinessDay: boolean;
-  ratedate: string;
 }
 
-/** FX history response. */
+/** One day of an FX history: USD per 1 unit of `currency`. */
+export interface FxHistoryPoint {
+  date: string;
+  value: number;
+  /** true when the day had no rate of its own and the previous one was carried forward. */
+  carriedForward: boolean;
+  source: string;
+}
+
+/** `GET /v1/fx/history`. */
 export interface FxHistoryResponse {
   currency: string;
+  baseCurrency: string;
   from: string;
   to: string;
-  rates: FxRate[];
+  rates: FxHistoryPoint[];
 }
 
-/** IAS 21 monthly average FX rate response. */
+/** `GET /v1/fx/monthly-average`: IAS 21 monthly average. `isLive` is true for a month that is not finished. */
 export interface FxMonthlyAverageResponse {
   currency: string;
+  baseCurrency: string;
   year: number;
   month: number;
-  averageRate: string;
-  daysInMonth: number;
-  businessDays: number;
-  source: string;
-  computedAt: string;
+  avgRate: number;
+  daysInAverage: number;
+  isLive: boolean;
 }
 
-/** Currency information. */
-export interface CurrencyInfo {
-  code: string;
-  name: string;
-  source: 'FRANKFURTER_ECB' | 'HARDCODED_PEG' | 'BASE_USD';
-  peggedToUsd: boolean;
-  pegRatio?: string;
-}
-
-/** List of supported currencies. */
+/** `GET /v1/fx/currencies`. */
 export interface CurrenciesResponse {
-  currencies: CurrencyInfo[];
-  count: number;
+  currencies: string[];
+  ecbCount: number;
+  pegged: string[];
+  peggedCount: number;
+  total: number;
 }
 
 /** Parameters for fetching a single FX rate. */
@@ -63,6 +65,6 @@ export interface FxHistoryParams {
 /** Parameters for fetching monthly average FX rate. */
 export interface FxMonthlyAverageParams {
   currency: string;
-  year: number;
-  month: number;
+  /** Month as `YYYY-MM`. */
+  month: string;
 }

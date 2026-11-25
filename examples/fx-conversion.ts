@@ -13,7 +13,6 @@ async function main() {
   });
   console.log(`EUR/USD on ${rate.date}: ${rate.rate}`);
   console.log(`  Source: ${rate.source}`);
-  console.log(`  Business day: ${rate.isBusinessDay}`);
 
   // FX history for a month
   const history = await client.fx.getHistory({
@@ -22,27 +21,22 @@ async function main() {
     to: '2026-01-31',
   });
   console.log(`\nEUR/USD history: ${history.rates.length} days`);
-  const rates = history.rates.map((r) => parseFloat(r.rate));
+  const rates = history.rates.map((r) => r.value);
   console.log(`  Min: ${Math.min(...rates).toFixed(4)}`);
   console.log(`  Max: ${Math.max(...rates).toFixed(4)}`);
 
   // IAS 21 monthly average (for financial statements)
   const avg = await client.fx.getMonthlyAverage({
     currency: 'EUR',
-    year: 2026,
-    month: 1,
+    month: '2026-01',
   });
   console.log(`\nIAS 21 monthly average for Jan 2026:`);
-  console.log(`  Rate: ${avg.averageRate}`);
-  console.log(`  Business days: ${avg.businessDays}/${avg.daysInMonth}`);
+  console.log(`  Rate: ${avg.avgRate}`);
+  console.log(`  Days in the average: ${avg.daysInAverage}${avg.isLive ? ' (month not finished)' : ''}`);
 
   // List all supported currencies
-  const { currencies, count } = await client.fx.listCurrencies();
-  console.log(`\n${count} supported currencies:`);
-  for (const c of currencies) {
-    const peg = c.peggedToUsd ? ` (pegged ${c.pegRatio})` : '';
-    console.log(`  ${c.code} — ${c.name} [${c.source}]${peg}`);
-  }
+  const { currencies, total, pegged } = await client.fx.listCurrencies();
+  console.log(`\n${total} supported currencies (${pegged.length} pegged): ${currencies.join(', ')}`);
 }
 
 main().catch(console.error);

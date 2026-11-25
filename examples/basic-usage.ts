@@ -15,17 +15,13 @@ async function main() {
   const status = await client.health.getSystemStatus();
   console.log(`System status: ${status.status}`);
 
-  // List supported chains
-  const chains = await client.health.listChains();
-  console.log(`${chains.length} chains supported`);
-
   // Get a BTC price
   const price = await client.prices.bySymbol({
     symbol: 'BTC',
     date: '2026-01-15',
     currency: 'EUR',
   });
-  console.log(`BTC: ${price.price} ${price.currency} (${price.source})`);
+  console.log(`BTC: ${price.price} ${price.currency} (level ${price.fairValueLevel})`);
 
   // Get an FX rate
   const fxRate = await client.fx.getRate({

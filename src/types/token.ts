@@ -1,18 +1,12 @@
-import type { Address } from './common';
-
-/** Token metadata. */
+/** Token record of `GET /v1/prices/tokens/{symbol}` and `GET /v1/prices/tokens` (recorded from the live route). */
 export interface TokenMetadata {
+  tokenId: number;
   symbol: string;
   name: string;
-  decimals: number;
-  contractAddress?: Address;
-  chainId?: number;
-  logoUrl?: string;
-  coingeckoId?: string;
-  /** Whether this token is a stablecoin pegged to USD. */
-  isStablecoin: boolean;
-  /** Total supply in smallest unit. */
-  totalSupply?: string;
-  /** Market cap in USD if available. */
-  marketCapUsd?: string;
+  /** Registry category, for example LAYER1, STABLECOIN, DEFI. */
+  category: string | null;
+  previousSymbols: string[] | null;
+  isActive: boolean;
+  isDelisted: boolean;
+  coingeckoId: string | null;
 }

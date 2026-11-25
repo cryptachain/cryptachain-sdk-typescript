@@ -1,6 +1,4 @@
-import type { PriceResponse } from '../../src/types/price';
-import type { FxRate, CurrenciesResponse } from '../../src/types/fx';
-import type { Transfer, TransferHistoryResponse, TokenBalance, NativeBalance, WalletSummary } from '../../src/types/wallet';
+import type { Transfer, TransferHistoryResponse, TokenBalance, NativeBalance } from '../../src/types/wallet';
 import type { ScreeningResult } from '../../src/types/screening';
 
 export const mockTransfer: Transfer = {
@@ -61,56 +59,6 @@ export const mockNativeBalance: NativeBalance = {
   symbol: 'ETH',
   decimals: 18,
   valueUsd: '15000.00',
-};
-
-export const mockWalletSummary: WalletSummary = {
-  address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
-  chainId: 1,
-  firstTransactionAt: '2020-01-01T00:00:00Z',
-  lastTransactionAt: '2026-01-15T12:00:00Z',
-  totalTransactions: 1500,
-  totalTokenTransfers: 800,
-  totalNftTransfers: 50,
-  nativeBalance: '5000000000000000000',
-  tokenCount: 25,
-  nftCount: 10,
-};
-
-export const mockPriceResponse: PriceResponse = {
-  symbol: 'BTC',
-  date: '2026-01-15',
-  currency: 'USD',
-  price: '105234.56',
-  priceUsd: '105234.56',
-  fxRate: '1.0',
-  fxSource: 'USD_BASE',
-  fxDate: '2026-01-15',
-  source: 'CRYPTAPRICE_VWAP',
-  qualityScore: 0.95,
-  fairValueLevel: 'LEVEL_1',
-  sourceCount: 12,
-  methodologyVersion: '2.3',
-  stablecoinPegged: false,
-  manualOverride: false,
-  computedAt: '2026-01-15T00:05:00Z',
-};
-
-export const mockFxRate: FxRate = {
-  currency: 'EUR',
-  date: '2026-01-15',
-  rate: '1.0842',
-  source: 'FRANKFURTER_ECB',
-  isBusinessDay: true,
-  ratedate: '2026-01-15',
-};
-
-export const mockCurrencies: CurrenciesResponse = {
-  currencies: [
-    { code: 'USD', name: 'US Dollar', source: 'BASE_USD', peggedToUsd: false },
-    { code: 'EUR', name: 'Euro', source: 'FRANKFURTER_ECB', peggedToUsd: false },
-    { code: 'USDT', name: 'Tether', source: 'HARDCODED_PEG', peggedToUsd: true, pegRatio: '1.0' },
-  ],
-  count: 3,
 };
 
 export const mockScreeningResult: ScreeningResult = {

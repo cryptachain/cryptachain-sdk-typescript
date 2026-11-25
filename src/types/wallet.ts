@@ -72,7 +72,10 @@ export interface TransferHistoryResponse {
 
 /** Parameters for fetching wallet transfer history. */
 export interface WalletHistoryParams {
-  chainId: number;
+  /** Chain slug (`ethereum`). */
+  chain?: string;
+  /** Numeric id, converted to the slug for the chains the SDK knows. */
+  chainId?: number;
   cursor?: string;
   limit?: number;
   sort?: SortDirection;
@@ -84,7 +87,8 @@ export interface WalletHistoryParams {
 
 /** Parameters for fetching wallet balances. */
 export interface WalletBalancesParams {
-  chainId: number;
+  chain?: string;
+  chainId?: number;
 }
 
 /** Parameters for fetching ERC-20 transfers. */

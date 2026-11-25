@@ -1,4 +1,5 @@
 import type { HttpClient } from '../client';
+import { resolveChainSlug } from '../utils/chain';
 import type {
   Block,
   Transaction,
@@ -36,9 +37,8 @@ export class BlockchainResource {
    * ```
    */
   async getBlock(params: GetBlockParams): Promise<Block> {
-    return this.http.get<Block>(`/blocks/${encodeURIComponent(String(params.blockNumber))}`, {
-      chain_id: params.chainId,
-    });
+    const chain = resolveChainSlug(params.chain, params.chainId);
+    return this.http.get<Block>(`/chains/${encodeURIComponent(chain)}/blocks/${encodeURIComponent(String(params.blockNumber))}`);
   }
 
   /**
@@ -57,9 +57,8 @@ export class BlockchainResource {
    * ```
    */
   async getTransaction(params: GetTransactionParams): Promise<Transaction> {
-    return this.http.get<Transaction>(`/transactions/${encodeURIComponent(params.hash)}`, {
-      chain_id: params.chainId,
-    });
+    const chain = resolveChainSlug(params.chain, params.chainId);
+    return this.http.get<Transaction>(`/chains/${encodeURIComponent(chain)}/transactions/${encodeURIComponent(params.hash)}`);
   }
 
   /**
@@ -78,9 +77,8 @@ export class BlockchainResource {
    * ```
    */
   async getReceipt(params: GetTransactionParams): Promise<TransactionReceipt> {
-    return this.http.get<TransactionReceipt>(`/transactions/${encodeURIComponent(params.hash)}/receipt`, {
-      chain_id: params.chainId,
-    });
+    const chain = resolveChainSlug(params.chain, params.chainId);
+    return this.http.get<TransactionReceipt>(`/chains/${encodeURIComponent(chain)}/transactions/${encodeURIComponent(params.hash)}/receipt`);
   }
 
   /**
@@ -101,9 +99,8 @@ export class BlockchainResource {
    * ```
    */
   async getTraces(params: GetTracesParams): Promise<Trace[]> {
-    return this.http.get<Trace[]>(`/transactions/${encodeURIComponent(params.hash)}/traces`, {
-      chain_id: params.chainId,
-    });
+    const chain = resolveChainSlug(params.chain, params.chainId);
+    return this.http.get<Trace[]>(`/chains/${encodeURIComponent(chain)}/transactions/${encodeURIComponent(params.hash)}/traces`);
   }
 
   /**
@@ -123,8 +120,8 @@ export class BlockchainResource {
    * ```
    */
   async getLogs(params: GetLogsParams): Promise<Log[]> {
-    return this.http.get<Log[]>('/logs', {
-      chain_id: params.chainId,
+    const chain = resolveChainSlug(params.chain, params.chainId);
+    return this.http.get<Log[]>(`/chains/${encodeURIComponent(chain)}/logs`, {
       from_block: params.fromBlock,
       to_block: params.toBlock,
       address: params.address,

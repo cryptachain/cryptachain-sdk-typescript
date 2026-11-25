@@ -8,6 +8,7 @@ import type {
   PriceByContractParams,
   PriceAtParams,
 } from '../types/price';
+import { resolveChainSlug } from '../utils/chain';
 
 /**
  * Resource class for crypto asset pricing endpoints.
@@ -39,8 +40,7 @@ export class PriceResource {
    * ```
    */
   async bySymbol(params: PriceBySymbolParams): Promise<PriceResponse> {
-    return this.http.get<PriceResponse>('/prices/by-symbol', {
-      symbol: params.symbol,
+    return this.http.get<PriceResponse>(`/prices/${encodeURIComponent(params.symbol)}/fair-value`, {
       date: params.date,
       currency: params.currency,
     });
@@ -55,7 +55,7 @@ export class PriceResource {
    * @example
    * ```ts
    * const price = await client.prices.byContract({
-   *   chainId: 1,
+   *   chain: 'ethereum',
    *   address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
    *   date: '2026-01-15',
    * });
@@ -63,37 +63,41 @@ export class PriceResource {
    * ```
    */
   async byContract(params: PriceByContractParams): Promise<PriceResponse> {
-    return this.http.get<PriceResponse>('/prices/by-contract', {
-      chain_id: params.chainId,
-      address: params.address,
-      date: params.date,
-      currency: params.currency,
-    });
+    const chain = resolveChainSlug(params.chain, params.chainId);
+    return this.http.get<PriceResponse>(
+      `/prices/by-contract/${encodeURIComponent(chain)}/${encodeURIComponent(params.address)}/fair-value`,
+      { date: params.date, currency: params.currency },
+    );
   }
 
   /**
    * Fetch prices for multiple assets in a single request.
    *
-   * Supports up to 500 items per batch. Each item can use either symbol or
-   * chain + contract address to identify the asset.
+   * Up to 500 symbols for ONE date. A symbol that has no price on that date is absent from the result.
+   * (GET /v1/prices/batch; for contracts use POST /v1/prices/by-contract/batch, not wrapped yet.)
    *
-   * @param request - Batch request containing up to 500 price lookups
-   * @returns Batch response with results and per-item errors
+   * @param request - Symbols (max 500), date and optional currency
+   * @returns Map from symbol to price
    *
    * @example
    * ```ts
    * const batch = await client.prices.batch({
-   *   requests: [
-   *     { symbol: 'BTC', date: '2026-01-15', currency: 'EUR' },
-   *     { symbol: 'ETH', date: '2026-01-15', currency: 'EUR' },
-   *     { chainId: 1, contractAddress: '0xA0b8...', date: '2026-01-15' },
-   *   ],
+   *   symbols: ['BTC', 'ETH'],
+   *   date: '2026-01-15',
+   *   currency: 'EUR',
    * });
-   * console.log(`Got ${batch.results.length} prices, ${batch.errors.length} errors`);
+   * console.log(batch.BTC.price, Object.keys(batch).length);
    * ```
    */
   async batch(request: PriceBatchRequest): Promise<PriceBatchResponse> {
-    return this.http.post<PriceBatchResponse>('/prices/batch', request);
+    if (request.symbols.length === 0 || request.symbols.length > 500) {
+      throw new Error('prices.batch takes 1 to 500 symbols');
+    }
+    return this.http.get<PriceBatchResponse>('/prices/batch', {
+      symbols: request.symbols.join(','),
+      date: request.date,
+      currency: request.currency,
+    });
   }
 
   /**
@@ -116,8 +120,7 @@ export class PriceResource {
    * ```
    */
   async at(params: PriceAtParams): Promise<PriceAtResponse> {
-    return this.http.get<PriceAtResponse>('/prices/at', {
-      symbol: params.symbol,
+    return this.http.get<PriceAtResponse>(`/prices/${encodeURIComponent(params.symbol)}/at`, {
       timestamp: params.timestamp,
       currency: params.currency,
     });

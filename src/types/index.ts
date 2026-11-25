@@ -53,11 +53,11 @@ export type {
 } from './screening';
 
 export type {
-  FxSource,
+  FxRateSourceCode,
+  CloseFinal,
   PriceSource,
   FairValueLevel,
   PriceResponse,
-  PriceBatchRequestItem,
   PriceBatchRequest,
   PriceBatchResponse,
   PriceAtResponse,
@@ -69,9 +69,9 @@ export type {
 export type {
   FxRateSource,
   FxRate,
+  FxHistoryPoint,
   FxHistoryResponse,
   FxMonthlyAverageResponse,
-  CurrencyInfo,
   CurrenciesResponse,
   FxRateParams,
   FxHistoryParams,

@@ -81,25 +81,29 @@ export interface Log {
 
 /** Parameters for fetching block data. */
 export interface GetBlockParams {
-  chainId: number;
+  chain?: string;
+  chainId?: number;
   blockNumber: number;
 }
 
 /** Parameters for fetching transaction data. */
 export interface GetTransactionParams {
-  chainId: number;
+  chain?: string;
+  chainId?: number;
   hash: string;
 }
 
 /** Parameters for fetching traces. */
 export interface GetTracesParams {
-  chainId: number;
+  chain?: string;
+  chainId?: number;
   hash: string;
 }
 
 /** Parameters for fetching logs. */
 export interface GetLogsParams {
-  chainId: number;
+  chain?: string;
+  chainId?: number;
   fromBlock: number;
   toBlock: number;
   address?: Address;

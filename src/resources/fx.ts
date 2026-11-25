@@ -92,7 +92,6 @@ export class FxResource {
   async getMonthlyAverage(params: FxMonthlyAverageParams): Promise<FxMonthlyAverageResponse> {
     return this.http.get<FxMonthlyAverageResponse>('/fx/monthly-average', {
       currency: params.currency,
-      year: params.year,
       month: params.month,
     });
   }

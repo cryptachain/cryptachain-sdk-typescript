@@ -1,8 +1,8 @@
 import type { HttpClient } from '../client';
+import { resolveChainSlug } from '../utils/chain';
 import type {
   ScreeningResult,
-  BulkScreeningRequest,
-  BulkScreeningResponse,
+  BulkScreeningRequest,
   ScreenAddressParams,
 } from '../types/screening';
 
@@ -38,9 +38,9 @@ export class ScreeningResource {
    * ```
    */
   async screenAddress(params: ScreenAddressParams): Promise<ScreeningResult> {
-    return this.http.get<ScreeningResult>('/screen/address', {
+    return this.http.post<ScreeningResult>('/screen/address', {
       address: params.address,
-      chain_id: params.chainId,
+      chain: resolveChainSlug(params.chain, params.chainId),
     });
   }
 
@@ -48,7 +48,7 @@ export class ScreeningResource {
    * Screen multiple addresses in a single request.
    *
    * @param request - Bulk screening request with array of address/chainId pairs
-   * @returns Bulk response with results and per-address errors
+   * @returns One screening result per address (the API answers with a JSON array)
    *
    * @example
    * ```ts
@@ -58,10 +58,13 @@ export class ScreeningResource {
    *     { address: '0xdef...', chainId: 137 },
    *   ],
    * });
-   * console.log(`Screened: ${bulk.results.length}, Errors: ${bulk.errors.length}`);
+   * console.log(`Screened: ${bulk.length}`);
    * ```
    */
-  async screenBulk(request: BulkScreeningRequest): Promise<BulkScreeningResponse> {
-    return this.http.post<BulkScreeningResponse>('/screen/bulk', request);
+  async screenBulk(request: BulkScreeningRequest): Promise<ScreeningResult[]> {
+    return this.http.post<ScreeningResult[]>(
+      '/screen/bulk',
+      request.addresses.map((a) => ({ address: a.address, chain: resolveChainSlug(a.chain, a.chainId) })),
+    );
   }
 }
